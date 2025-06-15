@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Costos Mercado Libre</title>
+    <style>
+        /* Estilos generales para el cuerpo de la página */
+        body {
+            font-family: 'Inter', sans-serif; /* Usando Inter como se recomienda */
+            background-color: #f4f7f6; /* Fondo suave */
+            color: #333; /* Color de texto principal */
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh; /* Altura mínima de la ventana */
+            box-sizing: border-box;
+        }
+
+        /* Contenedor principal de la aplicación */
+        .container {
+            background-color: #ffffff; /* Fondo blanco para el contenedor */
+            padding: 30px;
+            border-radius: 12px; /* Esquinas redondeadas */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); /* Sombra suave */
+            max-width: 600px; /* Ancho máximo para pantallas grandes */
+            width: 100%; /* Ocupa todo el ancho disponible */
+            border-top: 5px solid #FFD100; /* Color amarillo/dorado de Mercado Libre */
+        }
+
+        /* Título de la aplicación */
+        h1 {
+            color: #FFD100; /* Color amarillo de Mercado Libre */
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+            border-bottom: 1px solid #eee; /* Línea separadora */
+            padding-bottom: 15px;
+        }
+
+        /* Secciones de la aplicación (entrada de datos y resultados) */
+        .section {
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px; /* Esquinas redondeadas */
+            background-color: #fdfdfd;
+        }
+
+        /* Título de cada sección */
+        .section-title {
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        /* Grupo de cada input (etiqueta + campo) */
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+
+        /* Estilo para todos los campos de entrada numérica y select */
+        input[type="number"],
+        select {
+            width: calc(100% - 22px); /* Ancho completo menos padding y borde */
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px; /* Esquinas redondeadas */
+            font-size: 1em;
+            box-sizing: border-box; /* Incluir padding y borde en el ancho */
+            transition: border-color 0.3s ease; /* Transición suave al enfocar */
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            border-color: #FFD100; /* Borde amarillo al enfocar */
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 209, 0, 0.25); /* Sombra al enfocar */
+        }
+
+        /* Contenedor del botón Calcular */
+        .button-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        /* Estilo para el botón Calcular */
+        button {
+            background-color: #FFD100; /* Amarillo de Mercado Libre */
+            color: #333; /* Texto oscuro para contraste */
+            padding: 14px 25px;
+            border: none;
+            border-radius: 8px; /* Esquinas redondeadas */
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Transiciones suaves */
+            box-shadow: 0 4px 10px rgba(255, 209, 0, 0.2); /* Sombra para el botón */
+        }
+
+        button:hover {
+            background-color: #e6b800; /* Tono más oscuro al pasar el mouse */
+            transform: translateY(-2px); /* Pequeño efecto de elevación */
+        }
+
+        /* Sección de resultados */
+        .results-section {
+            background-color: #FFFBE6; /* Un amarillo muy claro para los resultados */
+            padding: 20px;
+            border-radius: 10px; /* Esquinas redondeadas */
+            margin-top: 30px;
+            border: 1px solid #FFED99; /* Borde suave */
+        }
+
+        /* Ítems individuales dentro de la sección de resultados */
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px dashed #FFED99; /* Línea punteada entre resultados */
+        }
+
+        .result-item:last-child {
+            border-bottom: none; /* No hay borde en el último ítem */
+            margin-bottom: 0;
+        }
+
+        /* Etiquetas de los resultados */
+        .result-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        /* Valores de los resultados */
+        .result-value {
+            font-weight: bold;
+            color: #007bff; /* Un azul para destacar el valor final */
+            font-size: 1.2em;
+            background-color: #e9f5ff; /* Fondo para el valor */
+            padding: 5px 10px;
+            border-radius: 5px; /* Esquinas redondeadas para el valor */
+            min-width: 100px;
+            text-align: right;
+        }
+
+        /* Estilos para el texto de ayuda */
+        .help-text {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Estilo para mensajes de error */
+        .error-message {
+            color: #dc3545; /* Rojo para errores */
+            font-weight: bold;
+            margin-top: 15px;
+            text-align: center;
+            display: none; /* Oculto por defecto, se muestra con JavaScript */
+        }
+
+        /* Adaptabilidad para pantallas más pequeñas (móviles) */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            input[type="number"],
+            select {
+                width: calc(100% - 20px);
+            }
+
+            button {
+                width: 100%;
+                padding: 12px 0;
+            }
+
+            .result-item {
+                flex-direction: column; /* Apilar etiqueta y valor en móviles */
+                align-items: flex-start;
+            }
+
+            .result-value {
+                margin-top: 5px;
+                min-width: unset;
+                width: 100%;
+                box-sizing: border-box;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simulador de Costos Mercado Libre</h1>
+
+        <div class="section input-section">
+            <div class="section-title">Datos de Entrada</div>
+
+            <div class="input-group">
+                <label for="costo">Costo del Artículo (incluye impuesto de compra):</label>
+                <input type="number" id="costo" placeholder="Ej: 10000" min="0" value="0">
+                <p class="help-text">El costo real de tu producto, ya incluyendo cualquier impuesto pagado al momento de la compra.</p>
+            </div>
+
+            <div class="input-group">
+                <label for="ganancia">Porcentaje de Ganancia Deseada (%):</label>
+                <input type="number" id="ganancia" placeholder="Ej: 20 (para 20%)" min="0" max="99" value="20">
+                <p class="help-text">El porcentaje que deseas ganar sobre el precio **final de venta** en Mercado Libre.</p>
+            </div>
+
+            <div class="input-group">
+                <label for="comisionML">Comisión de Mercado Libre (%):</label>
+                <input type="number" id="comisionML" placeholder="Ej: 14 (para 14%)" min="0" max="99" value="14">
+                <p class="help-text">El porcentaje que cobra Mercado Libre por la publicación y venta (sobre el precio final).</p>
+            </div>
+
+            <div class="input-group">
+                <label for="costoEnvio">Costo de Envío (si aplica - a tu cargo):</label>
+                <input type="number" id="costoEnvio" placeholder="Ej: 3000 (si lo pagas vos)" min="0" value="0">
+                <p class="help-text">El monto fijo del envío que asumes tú, si ofreces envío gratis. (No incluyas la bonificación de ML).</p>
+            </div>
+
+            <div class="input-group">
+                <label for="costoFijoVenta">Costo Fijo por Venta (si aplica - por ej. artículos de bajo valor):</label>
+                <input type="number" id="costoFijoVenta" placeholder="Ej: 50 (si ML cobra fijo)" min="0" value="0">
+                <p class="help-text">Monto fijo que Mercado Libre cobra en algunas categorías o para artículos de bajo precio.</p>
+            </div>
+
+            <div class="input-group">
+                <label for="impuestoBaseImponible">Impuesto sobre Base Imponible (%):</label>
+                <input type="number" id="impuestoBaseImponible" placeholder="Ej: 5 (para 5%)" min="0" max="99" value="5">
+                <p class="help-text">Porcentaje de impuesto (ej. Ingresos Brutos) sobre el precio de venta sin IVA (IVA fijo del 21% para esta base).</p>
+            </div>
+
+            <div class="input-group">
+                <label for="costoFinancieroSelect">Costo Financiero por Cuotas:</label>
+                <select id="costoFinancieroSelect">
+                    <option value="0">1- Sin cuotas (0%)</option>
+                    <option value="0.074">2- 3 cuotas (7,40%)</option>
+                    <option value="0.119">3- 6 cuotas (11,90%)</option>
+                </select>
+                <p class="help-text">Selecciona el costo adicional que asumes según la opción de cuotas que ofrezcas.</p>
+            </div>
+
+            <div class="input-group">
+                <label for="acos">ACOS - Inversión en Publicidad (%):</label>
+                <input type="number" id="acos" placeholder="Ej: 10 (para 10%)" min="0" max="99" value="0">
+                <p class="help-text">Porcentaje del precio de venta final dispuesto a invertir en publicidad (ACOS).</p>
+            </div>
+
+            <div class="input-group">
+                <label for="descuentoPromocional">Descuento Promocional (%):</label>
+                <input type="number" id="descuentoPromocional" placeholder="Ej: 5 (para 5%)" min="0" max="99" value="0">
+                <p class="help-text">Porcentaje de descuento sobre el precio de venta sugerido inicial. ¡Afecta la base de cálculo de otros costos!</p>
+            </div>
+
+
+            <div class="button-container">
+                <button onclick="calcularPrecio()">Calcular Precio</button>
+            </div>
+
+            <div id="errorMessage" class="error-message" role="alert" aria-live="assertive"></div>
+        </div>
+
+        <div class="section results-section">
+            <div class="section-title">Resultados Estimados</div>
+
+            <div class="result-item">
+                <span class="result-label">Precio Sugerido (Antes Descuento):</span>
+                <span class="result-value">$ <span id="resultadoPrecioSugeridoOriginal">0.00</span></span>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Monto del Descuento:</span>
+                <span class="result-value">$ <span id="resultadoDescuentoMonto">0.00</span></span>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label"><strong>Precio Final de Venta en Mercado Libre:</strong></span>
+                <span class="result-value">$ <span id="resultadoPrecioFinalVenta">0.00</span></span>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Ganancia Estimada:</span>
+                <span class="result-value">$ <span id="resultadoGanancia">0.00</span></span>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Comisión ML Estimada:</span>
+                <span class="result-value">$ <span id="resultadoComision">0.00</span></span>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Impuesto Estimado (5% sobre Base Imponible):</span>
+                <span class="result-value">$ <span id="resultadoImpuestoBaseImponible">0.00</span></span>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Costo Financiero Estimado:</span>
+                <span class="result-value">$ <span id="resultadoCostoFinanciero">0.00</span></span>
+            </div>
+
+            <div class="result-item">
+                <span class="result-label">Costo Publicidad (ACOS) Estimado:</span>
+                <span class="result-value">$ <span id="resultadoACOS">0.00</span></span>
+            </div>
+
+             <div class="result-item">
+                <span class="result-label">Costo Total (todos los gastos, sin tu ganancia neta):</span>
+                <span class="result-value">$ <span id="resultadoCostoTotal">0.00</span></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Constante para el IVA (21%) utilizado en la base imponible
+        const IVA_PORCENTAJE_FIJO = 0.21; // 21% de IVA
+
+        // Función principal para calcular el precio
+        function calcularPrecio() {
+            // Obtener los valores de los campos de entrada
+            let costoArticulo = parseFloat(document.getElementById('costo').value);
+            let gananciaDeseadaPorcentaje = parseFloat(document.getElementById('ganancia').value);
+            let comisionMLPorcentaje = parseFloat(document.getElementById('comisionML').value);
+            let costoEnvio = parseFloat(document.getElementById('costoEnvio').value);
+            let costoFijoVenta = parseFloat(document.getElementById('costoFijoVenta').value);
+            let impuestoBaseImponiblePorcentaje = parseFloat(document.getElementById('impuestoBaseImponible').value);
+            let costoFinancieroPorcentaje = parseFloat(document.getElementById('costoFinancieroSelect').value);
+            let acosPorcentaje = parseFloat(document.getElementById('acos').value);
+            let descuentoPromocionalPorcentaje = parseFloat(document.getElementById('descuentoPromocional').value);
+
+            // Elemento para mostrar mensajes de error
+            const errorMessageElement = document.getElementById('errorMessage');
+            errorMessageElement.style.display = 'none'; // Ocultar cualquier mensaje de error previo
+
+            // --- Validación de Entradas ---
+            if (isNaN(costoArticulo) || isNaN(gananciaDeseadaPorcentaje) || isNaN(comisionMLPorcentaje) || 
+                isNaN(costoEnvio) || isNaN(costoFijoVenta) || isNaN(impuestoBaseImponiblePorcentaje) ||
+                isNaN(acosPorcentaje) || isNaN(descuentoPromocionalPorcentaje)) {
+                errorMessageElement.innerText = "Por favor, ingresa solo números válidos en todos los campos.";
+                errorMessageElement.style.display = 'block';
+                // Restablecer los resultados si hay un error
+                resetResults();
+                return;
+            }
+
+            // Convertir porcentajes a su forma decimal
+            let gananciaDeseada = gananciaDeseadaPorcentaje / 100;
+            let comisionML = comisionMLPorcentaje / 100;
+            let impuestoBaseImponible = impuestoBaseImponiblePorcentaje / 100;
+            let acos = acosPorcentaje / 100;
+            let descuentoPromocional = descuentoPromocionalPorcentaje / 100;
+
+            // Calcular el porcentaje efectivo del impuesto sobre el precio final de venta
+            // Base imponible = Precio Final / (1 + IVA_PORCENTAJE_FIJO)
+            // Por lo tanto, el impuesto es impuestoBaseImponible * (Precio Final / (1 + IVA_PORCENTAJE_FIJO))
+            // Esto lo convertimos a un porcentaje sobre el Precio Final de Venta para la fórmula:
+            let impuestoEfectivoSobrePrecioFinal = impuestoBaseImponible / (1 + IVA_PORCENTAJE_FIJO);
+
+            // Suma de todos los porcentajes que se aplican sobre el Precio Final de Venta
+            let totalPorcentajesSobrePrecioFinalVenta = comisionML + impuestoEfectivoSobrePrecioFinal + costoFinancieroPorcentaje + acos + gananciaDeseada;
+
+            // --- Validación adicional para evitar divisiones por cero o resultados negativos ---
+            if (totalPorcentajesSobrePrecioFinalVenta >= 1) {
+                errorMessageElement.innerText = "La suma de Ganancia, Comisión ML, Impuesto, Costo Financiero y ACOS es igual o superior al 100%. El cálculo no es posible con estos valores de porcentajes (no se puede obtener ganancia). ¡Ajusta los porcentajes!";
+                errorMessageElement.style.display = 'block';
+                resetResults();
+                return;
+            }
+
+            if (descuentoPromocional >= 1) {
+                errorMessageElement.innerText = "El descuento promocional no puede ser igual o superior al 100%.";
+                errorMessageElement.style.display = 'block';
+                resetResults();
+                return;
+            }
+
+            // --- Fórmula de Cálculo ---
+            // 1. Primero calculamos el Precio Final de Venta (PFV)
+            // PFV = (Costo Artículo + Costo Envío + Costo Fijo Venta) / (1 - Suma de todos los porcentajes sobre PFV)
+            let numeradorPFV = costoArticulo + costoEnvio + costoFijoVenta;
+            let denominadorPFV = 1 - totalPorcentajesSobrePrecioFinalVenta;
+
+            let precioFinalVenta = numeradorPFV / denominadorPFV;
+
+            // 2. Luego, calculamos el Precio Sugerido Original (antes del descuento)
+            // Precio Final de Venta = Precio Sugerido Original * (1 - Descuento Promocional)
+            // Precio Sugerido Original = Precio Final de Venta / (1 - Descuento Promocional)
+            let precioSugeridoOriginal = precioFinalVenta / (1 - descuentoPromocional);
+            
+            // --- Cálculos de Componentes Individuales para Resultados ---
+            let montoDescuento = precioSugeridoOriginal * descuentoPromocional;
+            
+            // La ganancia se calcula sobre el Precio Final de Venta
+            let gananciaEstimada = precioFinalVenta * gananciaDeseada; 
+            
+            let comisionMLEstimada = (precioFinalVenta * comisionML) + costoFijoVenta;
+            
+            let baseImponibleCalculada = precioFinalVenta / (1 + IVA_PORCENTAJE_FIJO);
+            let impuestoEstimadoMonto = baseImponibleCalculada * impuestoBaseImponible;
+
+            let costoFinancieroMonto = precioFinalVenta * costoFinancieroPorcentaje;
+            let acosMonto = precioFinalVenta * acos;
+
+            // El costo total es la suma de todos los gastos que asumes
+            let costoTotalFinal = costoArticulo + costoEnvio + comisionMLEstimada + impuestoEstimadoMonto + costoFinancieroMonto + acosMonto;
+
+            // --- Mostrar los Resultados ---
+            document.getElementById('resultadoPrecioSugeridoOriginal').innerText = precioSugeridoOriginal.toFixed(2);
+            document.getElementById('resultadoDescuentoMonto').innerText = montoDescuento.toFixed(2);
+            document.getElementById('resultadoPrecioFinalVenta').innerText = precioFinalVenta.toFixed(2);
+            document.getElementById('resultadoGanancia').innerText = gananciaEstimada.toFixed(2);
+            document.getElementById('resultadoComision').innerText = comisionMLEstimada.toFixed(2);
+            document.getElementById('resultadoImpuestoBaseImponible').innerText = impuestoEstimadoMonto.toFixed(2);
+            document.getElementById('resultadoCostoFinanciero').innerText = costoFinancieroMonto.toFixed(2);
+            document.getElementById('resultadoACOS').innerText = acosMonto.toFixed(2);
+            document.getElementById('resultadoCostoTotal').innerText = costoTotalFinal.toFixed(2);
+        }
+
+        // Función para restablecer los resultados a 0.00
+        function resetResults() {
+            document.getElementById('resultadoPrecioSugeridoOriginal').innerText = "0.00";
+            document.getElementById('resultadoDescuentoMonto').innerText = "0.00";
+            document.getElementById('resultadoPrecioFinalVenta').innerText = "0.00";
+            document.getElementById('resultadoGanancia').innerText = "0.00";
+            document.getElementById('resultadoComision').innerText = "0.00";
+            document.getElementById('resultadoImpuestoBaseImponible').innerText = "0.00";
+            document.getElementById('resultadoCostoFinanciero').innerText = "0.00";
+            document.getElementById('resultadoACOS').innerText = "0.00";
+            document.getElementById('resultadoCostoTotal').innerText = "0.00";
+        }
+
+        // Ejecutar el cálculo al cargar la página con los valores por defecto
+        document.addEventListener('DOMContentLoaded', calcularPrecio);
+    </script>
+</body>
+</html>
